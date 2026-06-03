@@ -1,0 +1,2200 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SOWN Coffee Intelligence</title>
+  <meta name="description" content="SOWN coffee lineup intelligence dashboard for green bean scouting, trend reading, and seasonal release planning.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue: #0e7ea4;
+      --ink: #17333b;
+      --muted: #61757b;
+      --paper: #fbfcfb;
+      --panel: #ffffff;
+      --line: rgba(14, 126, 164, .18);
+      --soft: rgba(14, 126, 164, .07);
+      --green: #237a57;
+      --amber: #b06924;
+      --rose: #b34a5b;
+      --violet: #6254a3;
+      --page: min(1440px, calc(100% - 36px));
+    }
+
+    * {
+      box-sizing: border-box;
+      min-width: 0;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background: #fff;
+      font-family: "Inter", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .shell {
+      width: var(--page);
+      margin: 0 auto;
+      padding: 18px 0 42px;
+    }
+
+    .topbar {
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand img {
+      width: 92px;
+      height: auto;
+      display: block;
+    }
+
+    .brand-text {
+      display: grid;
+      gap: 2px;
+    }
+
+    .brand-kicker {
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .icon-button,
+    .primary-button,
+    .ghost-button {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: var(--panel);
+      color: var(--ink);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .icon-button {
+      width: 40px;
+      padding: 0;
+    }
+
+    .primary-button {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .ghost-button:hover,
+    .icon-button:hover,
+    .primary-button:hover {
+      opacity: .78;
+    }
+
+    .ghost-button:focus-visible,
+    .icon-button:focus-visible,
+    .primary-button:focus-visible,
+    .tab-button:focus-visible {
+      outline: 2px solid rgba(14, 126, 164, .35);
+      outline-offset: 2px;
+    }
+
+    .hero {
+      padding: 16px 0;
+    }
+
+    .status-panel {
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: #fff;
+      padding: 14px 16px;
+      display: grid;
+      grid-template-columns: minmax(160px, auto) minmax(170px, auto) minmax(210px, .75fr) minmax(0, 1.25fr);
+      align-items: center;
+      gap: 18px;
+    }
+
+    .status-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .pulse {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 6px rgba(35, 122, 87, .12);
+      flex: 0 0 auto;
+    }
+
+    .score {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .score strong {
+      color: var(--blue);
+      font-size: 46px;
+      line-height: .9;
+      letter-spacing: 0;
+    }
+
+    .score span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      font-weight: 600;
+      word-break: keep-all;
+    }
+
+    .watchlist {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .watchlist span,
+    .chip {
+      min-height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      display: inline-flex;
+      align-items: center;
+      padding: 0 10px;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .view-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 0 18px;
+    }
+
+    .tab-button {
+      min-height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: #fff;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .tab-button.is-active {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .page-view {
+      display: none;
+    }
+
+    .page-view.is-active {
+      display: block;
+    }
+
+    .kpi,
+    .panel,
+    .table-panel {
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: var(--panel);
+    }
+
+    .kpi {
+      padding: 14px 16px;
+      min-height: 86px;
+      display: grid;
+      align-content: center;
+      gap: 8px;
+    }
+
+    .kpi-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .kpi-value {
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+      color: var(--ink);
+      font-size: 28px;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .kpi-value small {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(320px, .9fr) minmax(0, 1.45fr) minmax(320px, .95fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .panel-note {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      word-break: keep-all;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .filters label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .filters input,
+    .filters select {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: rgba(14, 126, 164, .04);
+      color: var(--ink);
+      padding: 0 10px;
+      outline: 0;
+    }
+
+    .filters .wide {
+      grid-column: 1 / -1;
+    }
+
+    .bars {
+      display: grid;
+      gap: 12px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: minmax(96px, 132px) minmax(140px, 1fr) 72px;
+      gap: 10px;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .bar-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .bar-track {
+      height: 16px;
+      border: 1px solid rgba(14, 126, 164, .16);
+      border-radius: 0;
+      background: rgba(14, 126, 164, .045);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      display: block;
+      height: 100%;
+      background: var(--blue);
+      min-width: 3px;
+      transition: width .18s ease;
+    }
+
+    .bar-count {
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .signal-list,
+    .lineup-list,
+    .report-list,
+    .roaster-list,
+    .analysis-flow,
+    .strategy-strip {
+      display: grid;
+      gap: 10px;
+    }
+
+    .analysis-flow {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .strategy-strip {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin: 0 0 14px;
+    }
+
+    .signal,
+    .lineup,
+    .report-item,
+    .roaster-card,
+    .flow-step,
+    .strategy-card {
+      border: 1px solid rgba(14, 126, 164, .15);
+      border-radius: 0;
+      background: rgba(14, 126, 164, .035);
+      padding: 12px;
+    }
+
+    .signal strong,
+    .lineup strong,
+    .report-item strong,
+    .roaster-card strong,
+    .flow-step strong,
+    .strategy-card strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .signal p,
+    .lineup p,
+    .report-item p,
+    .roaster-card p,
+    .flow-step p,
+    .strategy-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      word-break: keep-all;
+    }
+
+    .flow-step b,
+    .strategy-card b {
+      color: var(--blue);
+      display: block;
+      margin-bottom: 4px;
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .roaster-card {
+      display: block;
+      background: #fff;
+    }
+
+    .roaster-card > * + * {
+      margin-top: 12px;
+    }
+
+    .roaster-card-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .roaster-count {
+      border: 1px solid var(--line);
+      color: var(--blue);
+      padding: 5px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .roaster-section-title {
+      margin: 0 0 8px;
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .roaster-report {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .roaster-report .panel {
+      gap: 16px;
+    }
+
+    .roaster-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 12px;
+    }
+
+    .roaster-meta {
+      display: block;
+    }
+
+    .roaster-meta span {
+      min-height: 0;
+      border-radius: 0;
+      background: rgba(14, 126, 164, .08);
+      color: var(--blue);
+      display: block;
+      padding: 10px 12px;
+      font-size: 12px;
+      line-height: 1.55;
+      font-weight: 700;
+      white-space: normal;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+
+    .roaster-why {
+      border-left: 3px solid var(--blue);
+      padding-left: 10px;
+    }
+
+    .roaster-why p + p {
+      margin-top: 7px;
+    }
+
+    .coffee-details {
+      display: grid;
+      gap: 8px;
+    }
+
+    .coffee-detail {
+      border: 1px solid rgba(14, 126, 164, .13);
+      border-radius: 0;
+      background: rgba(14, 126, 164, .025);
+      padding: 10px;
+    }
+
+    .coffee-detail h4 {
+      margin: 0 0 6px;
+      font-size: 13px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .coffee-detail dl {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      gap: 4px 9px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .coffee-detail dt {
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .coffee-detail dd {
+      margin: 0;
+    }
+
+    .source-link {
+      justify-self: start;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .lineup {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 12px;
+      background: #fff;
+    }
+
+    .lineup-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 0;
+      background: var(--soft);
+      color: var(--blue);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    .lineup-body {
+      display: grid;
+      gap: 8px;
+    }
+
+    .lineup-name {
+      margin: 0;
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .lineup-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .lineup-meta span {
+      min-height: 24px;
+      border: 1px solid var(--line);
+      background: rgba(14, 126, 164, .04);
+      color: var(--blue);
+      display: inline-flex;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .lineup-reason {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+      word-break: keep-all;
+    }
+
+    .lineup-link,
+    .table-link {
+      min-height: 32px;
+      border: 1px solid var(--blue);
+      background: var(--blue);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      justify-self: start;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .lineup-link:hover,
+    .table-link:hover {
+      opacity: .78;
+    }
+
+    .season-card {
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: rgba(14, 126, 164, .035);
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .season-card h3 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    .season-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .matrix-cell {
+      min-height: 94px;
+      border: 1px solid rgba(14, 126, 164, .15);
+      border-radius: 0;
+      padding: 11px;
+      background: #fff;
+    }
+
+    .matrix-cell b {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 12px;
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .matrix-cell span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .table-panel {
+      grid-column: 1 / -1;
+      overflow: hidden;
+    }
+
+    .table-tools {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .table-tools h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1280px;
+      background: #fff;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(14, 126, 164, .12);
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      background: rgba(14, 126, 164, .04);
+      white-space: nowrap;
+    }
+
+    td strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    td small {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .table-note {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      word-break: keep-all;
+    }
+
+    .rank {
+      width: 30px;
+      height: 30px;
+      border-radius: 0;
+      background: rgba(14, 126, 164, .09);
+      color: var(--blue);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    .badge {
+      min-height: 24px;
+      border-radius: 0;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 8px;
+      color: #fff;
+      background: var(--blue);
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge.green { background: var(--green); }
+    .badge.amber { background: var(--amber); }
+    .badge.rose { background: var(--rose); }
+    .badge.violet { background: var(--violet); }
+    .badge.muted { background: #789098; }
+
+    .loading {
+      min-height: 220px;
+      display: grid;
+      place-items: center;
+      border: 1px dashed var(--line);
+      border-radius: 0;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    @media (max-width: 1180px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .status-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      :root {
+        --page: min(100% - 24px, 1440px);
+      }
+
+      .topbar,
+      .actions,
+      .table-tools {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .actions,
+      .table-tools {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+
+      .brand {
+        align-items: flex-start;
+      }
+
+      .status-panel {
+        gap: 12px;
+      }
+
+      .kpis,
+      .view-tabs,
+      .analysis-flow,
+      .strategy-strip,
+      .filters,
+      .matrix {
+        grid-template-columns: 1fr;
+      }
+
+      .bar-row {
+        grid-template-columns: 88px 1fr 64px;
+      }
+
+      .score strong {
+        font-size: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="SOWN Coffee Intelligence">
+        <img src="sownlogoblue.png" alt="SOWN">
+        <span class="brand-text">
+          <span class="brand-kicker">Coffee Intelligence</span>
+          <span class="brand-title">Seasonal Lineup Dashboard</span>
+        </span>
+      </a>
+      <div class="actions">
+        <button class="icon-button" id="refreshButton" type="button" title="새로고침" aria-label="새로고침">↻</button>
+        <button class="ghost-button" id="exportButton" type="button">보고서 복사</button>
+        <button class="primary-button" id="loadMoreButton" type="button">생두 데이터 더 불러오기</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <aside class="status-panel">
+          <div class="status-line">
+            <span id="statusText">데이터 준비 중</span>
+            <span class="pulse" aria-hidden="true"></span>
+          </div>
+          <div class="status-line">
+            <span>로스터리 라인업 기준일</span>
+            <span id="roasterUpdatedAt">-</span>
+          </div>
+          <div class="score">
+            <strong id="seasonScore">0</strong>
+            <span>이번 달 라인업 적합도<br>희소성, 계절성, 재고 후보를 종합합니다.</span>
+          </div>
+          <div class="watchlist" aria-label="global roaster watchlist">
+            <span>Sey</span><span>La Cabra</span><span>Onyx</span><span>Ilse</span><span>Hydrangea</span><span>Regalia</span><span>Black & White</span><span>Prodigal</span><span>Monogram</span><span>Philocoffea</span><span>Glitch</span>
+          </div>
+        </aside>
+      </section>
+
+      <nav class="view-tabs" aria-label="Dashboard pages">
+        <button class="tab-button is-active" type="button" data-view="reportPage">1. 로스터리 라인업 분석 보고서</button>
+        <button class="tab-button" type="button" data-view="recommendationPage">2. SOWN 추천 원두</button>
+      </nav>
+
+      <section id="reportPage" class="page-view is-active">
+        <section class="roaster-report">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2 class="panel-title">로스터리 라인업 분석 보고서</h2>
+                <p class="panel-note">각 로스터리가 무엇을 파고 있는지, 어떤 농장·프로세스·품종을 선택했는지, 그 선택의 의도를 해석합니다. <span id="roasterUpdatedInline">기준일 확인 중</span></p>
+              </div>
+              <span class="chip">Global Watch</span>
+            </div>
+            <div class="season-card">
+              <h3 id="roasterReportHeadline">글로벌 로스터리 라인업을 분석 중입니다.</h3>
+              <p id="roasterReportSummary">Prodigal, Monogram, Philocoffea를 포함한 관찰 로스터리의 라인업을 비교합니다.</p>
+            </div>
+            <div class="analysis-flow" aria-label="report reading order">
+              <article class="flow-step">
+                <b>Step 1</b>
+                <strong>무엇을 파는가</strong>
+                <p>각 로스터리가 내세우는 산지, 품종, 프로세스의 공통 신호를 먼저 봅니다.</p>
+              </article>
+              <article class="flow-step">
+                <b>Step 2</b>
+                <strong>왜 가져왔나</strong>
+                <p>데일리 판매, 브랜드 시그널, 희소성, 교육적 대비 중 어떤 목적이 강한지 해석합니다.</p>
+              </article>
+              <article class="flow-step">
+                <b>Step 3</b>
+                <strong>어떤 커피인가</strong>
+                <p>농장, 품종, 프로세스, 컵노트가 라인업 목적과 맞는지 커피별로 확인합니다.</p>
+              </article>
+              <article class="flow-step">
+                <b>Step 4</b>
+                <strong>SOWN 번역</strong>
+                <p>그 흐름을 Core, Seasonal, Experimental, Milk, Rare 슬롯으로 바꿉니다.</p>
+              </article>
+            </div>
+            <div class="report-list" id="globalReportList"></div>
+          </section>
+          <section class="roaster-grid" id="roasterList"></section>
+        </section>
+      </section>
+
+      <section id="recommendationPage" class="page-view">
+        <section class="kpis" aria-label="dashboard metrics">
+          <article class="kpi">
+            <span class="kpi-label">수집 원두</span>
+            <span class="kpi-value"><b id="totalCount">0</b><small>lots</small></span>
+          </article>
+          <article class="kpi">
+            <span class="kpi-label">주요 산지</span>
+            <span class="kpi-value"><b id="topOrigin">-</b></span>
+          </article>
+          <article class="kpi">
+            <span class="kpi-label">실험 가공 비율</span>
+            <span class="kpi-value"><b id="experimentalRate">0%</b><small>Anaerobic 등</small></span>
+          </article>
+          <article class="kpi">
+            <span class="kpi-label">구매 가능 후보</span>
+            <span class="kpi-value"><b id="buyableCount">0</b><small>items</small></span>
+          </article>
+        </section>
+
+        <section class="strategy-strip" aria-label="SOWN recommendation logic">
+          <article class="strategy-card">
+            <b>Global Signal</b>
+            <strong id="strategyGlobal">로스터리 신호 분석 중</strong>
+            <p>상위 로스터리의 기준축과 희소 슬롯을 비교합니다.</p>
+          </article>
+          <article class="strategy-card">
+            <b>SOWN Filter</b>
+            <strong id="strategyFilter">후보 데이터 계산 중</strong>
+            <p>현재 수집된 생두에서 산지, 프로세스, 컵노트, 가격을 압축합니다.</p>
+          </article>
+          <article class="strategy-card">
+            <b>Buying Action</b>
+            <strong id="strategyAction">샘플 후보 정리 중</strong>
+            <p>발주 전에 확인할 우선순위와 리스크를 정리합니다.</p>
+          </article>
+        </section>
+
+        <section class="dashboard-grid">
+        <aside class="panel">
+          <div class="panel-head">
+            <div>
+              <h2 class="panel-title">필터</h2>
+              <p class="panel-note">원하는 산지, 프로세스, 가격대만 남겨 추천 라인업을 다시 계산합니다.</p>
+            </div>
+          </div>
+          <div class="filters">
+            <label class="wide">검색
+              <input id="searchInput" type="search" placeholder="커피명, 산지, 컵노트, 판매처">
+            </label>
+            <label>산지
+              <select id="originFilter"><option value="">전체</option></select>
+            </label>
+            <label>프로세스
+              <select id="processFilter"><option value="">전체</option></select>
+            </label>
+            <label>판매처
+              <select id="sellerFilter"><option value="">전체</option></select>
+            </label>
+            <label>최대 가격
+              <input id="maxPriceInput" type="number" min="0" step="1000" placeholder="제한 없음">
+            </label>
+          </div>
+          <button class="ghost-button" id="clearButton" type="button">필터 초기화</button>
+        </aside>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2 class="panel-title">트렌드 신호</h2>
+              <p class="panel-note">현재 후보군에서 많이 보이는 패턴과 SOWN이 해석할 방향입니다.</p>
+            </div>
+            <span class="chip" id="monthLabel">이번 달</span>
+          </div>
+          <div class="season-card">
+            <h3 id="headlineRecommendation">데이터를 불러오고 있습니다.</h3>
+            <p id="headlineReason">Cloudflare Pages Functions의 `/api/beans`에서 데이터를 가져와 추천을 계산합니다.</p>
+          </div>
+          <div class="matrix">
+            <div class="matrix-cell">
+              <b>Origin</b>
+              <span id="originInsight">-</span>
+            </div>
+            <div class="matrix-cell">
+              <b>Process</b>
+              <span id="processInsight">-</span>
+            </div>
+            <div class="matrix-cell">
+              <b>Cup Note</b>
+              <span id="noteInsight">-</span>
+            </div>
+            <div class="matrix-cell">
+              <b>Buying</b>
+              <span id="buyingInsight">-</span>
+            </div>
+          </div>
+          <div class="signal-list" id="signalList"></div>
+        </section>
+
+        <aside class="panel">
+          <div class="panel-head">
+            <div>
+              <h2 class="panel-title">시즌 라인업 제안</h2>
+              <p class="panel-note">SOWN 메뉴에 바로 옮기기 쉬운 5개 포지션입니다.</p>
+            </div>
+          </div>
+          <div class="lineup-list" id="lineupList"></div>
+        </aside>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2 class="panel-title">산지 분포</h2>
+              <p class="panel-note">후보 원두의 생산국 비중입니다.</p>
+            </div>
+          </div>
+          <div class="bars" id="originBars"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2 class="panel-title">프로세스 분포</h2>
+              <p class="panel-note">워시드, 내추럴, 무산소, 허니 등 가공 흐름입니다.</p>
+            </div>
+          </div>
+          <div class="bars" id="processBars"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2 class="panel-title">월간 보고서 초안</h2>
+              <p class="panel-note">복사해서 Notion, Docs, Slack에 붙여넣기 좋게 요약합니다.</p>
+            </div>
+          </div>
+          <div class="report-list" id="reportList"></div>
+        </section>
+
+        <section class="table-panel">
+          <div class="table-tools">
+            <h2>구매 후보 보드</h2>
+            <span class="chip" id="visibleCount">0개 표시</span>
+            <button class="ghost-button" id="copyCandidatesButton" type="button">후보 복사</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Coffee</th>
+                  <th>Origin</th>
+                  <th>Process</th>
+                  <th>Signal</th>
+                  <th>Why</th>
+                  <th>Arrival</th>
+                  <th>Price</th>
+                  <th>Seller</th>
+                  <th>Link</th>
+                </tr>
+              </thead>
+              <tbody id="candidateTable">
+                <tr><td colspan="10"><div class="loading">데이터를 불러오는 중입니다.</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const API_URL = "/api/beans";
+    const state = {
+      beans: [],
+      page: 0,
+      loading: false,
+      reachedEnd: false,
+      filters: {
+        search: "",
+        origin: "",
+        process: "",
+        seller: "",
+        maxPrice: ""
+      }
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+    const now = new Date();
+    const monthText = new Intl.DateTimeFormat("ko-KR", { month: "long" }).format(now);
+    const reportUpdatedAt = new Intl.DateTimeFormat("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).format(now).replace(/\. /g, ".").replace(/\.$/, "");
+
+    const elements = {
+      statusText: $("#statusText"),
+      seasonScore: $("#seasonScore"),
+      totalCount: $("#totalCount"),
+      topOrigin: $("#topOrigin"),
+      experimentalRate: $("#experimentalRate"),
+      buyableCount: $("#buyableCount"),
+      roasterUpdatedAt: $("#roasterUpdatedAt"),
+      roasterUpdatedInline: $("#roasterUpdatedInline"),
+      monthLabel: $("#monthLabel"),
+      headlineRecommendation: $("#headlineRecommendation"),
+      headlineReason: $("#headlineReason"),
+      originInsight: $("#originInsight"),
+      processInsight: $("#processInsight"),
+      noteInsight: $("#noteInsight"),
+      buyingInsight: $("#buyingInsight"),
+      strategyGlobal: $("#strategyGlobal"),
+      strategyFilter: $("#strategyFilter"),
+      strategyAction: $("#strategyAction"),
+      signalList: $("#signalList"),
+      lineupList: $("#lineupList"),
+      roasterList: $("#roasterList"),
+      globalReportList: $("#globalReportList"),
+      roasterReportHeadline: $("#roasterReportHeadline"),
+      roasterReportSummary: $("#roasterReportSummary"),
+      originBars: $("#originBars"),
+      processBars: $("#processBars"),
+      reportList: $("#reportList"),
+      candidateTable: $("#candidateTable"),
+      visibleCount: $("#visibleCount"),
+      searchInput: $("#searchInput"),
+      originFilter: $("#originFilter"),
+      processFilter: $("#processFilter"),
+      sellerFilter: $("#sellerFilter"),
+      maxPriceInput: $("#maxPriceInput"),
+      loadMoreButton: $("#loadMoreButton"),
+      refreshButton: $("#refreshButton"),
+      exportButton: $("#exportButton"),
+      copyCandidatesButton: $("#copyCandidatesButton"),
+      clearButton: $("#clearButton")
+    };
+
+    const globalRoasterLineups = [
+      {
+        roaster: "Sey Coffee",
+        market: "Brooklyn / light roast",
+        thesis: "워시드 중심의 초고투명 필터 라인업. 품종과 테루아를 흐리지 않는 발효 설계가 핵심입니다.",
+        intent: "Sey는 화려한 발효감보다 생산자, 고도, 품종, 수확/건조 정밀도를 전면에 둡니다. 현재 라인업도 대부분 워시드이며, Peru Gesha, Colombia Chiroso/Pink Bourbon, Burundi field blend처럼 품종과 산지 대비를 교육적으로 보여주는 구성입니다.",
+        sown: "SOWN의 Core Filter는 워시드 에티오피아/케냐/페루 Gesha 계열처럼 향미가 선명하고 설명이 쉬운 커피로 잡는 것이 좋습니다.",
+        source: "https://thepress.coffee/roasters/sey-coffee/",
+        coffees: [
+          {
+            name: "2026 Edgardo Cruz Meza",
+            origin: "Peru, Jaen, Cajamarca",
+            farm: "Edgardo Cruz Meza",
+            variety: "Geisha",
+            process: "Washed, 32h dry fermentation, raised-bed drying",
+            altitude: "1,780m",
+            notes: "dragon fruit, Key lime, jasmine",
+            read: "Peru 북부의 Gesha 가능성을 보여주는 슬롯. 고가 희소 품종이지만 프로세스는 워시드로 유지해 Sey식 투명도를 지킵니다."
+          },
+          {
+            name: "Jose Pena; Los Naranjos",
+            origin: "Colombia, Urrao",
+            farm: "Los Naranjos",
+            variety: "Chiroso",
+            process: "Washed",
+            altitude: "",
+            notes: "yellow tropical fruit, candied strawberry, hops",
+            read: "Colombia를 단순한 단맛 산지가 아니라 Chiroso 품종의 향미 다양성으로 제시합니다."
+          },
+          {
+            name: "Wilson Alba; Sierra Morena",
+            origin: "Colombia, Huila",
+            farm: "Sierra Morena",
+            variety: "Pink Bourbon",
+            process: "Washed, 24h dry fermentation, 30 days raised-bed drying",
+            altitude: "",
+            notes: "berry compote, lemon zest, hibiscus",
+            read: "Pink Bourbon을 발효 과시가 아니라 품종 캐릭터와 수확 패스의 정밀도로 설득합니다."
+          }
+        ]
+      },
+      {
+        roaster: "La Cabra",
+        market: "Copenhagen / Nordic",
+        thesis: "북유럽식 밝은 산미, 차 같은 질감, 산지별 대비를 선명하게 나누는 라인업.",
+        intent: "La Cabra식 라인업은 Ethiopia floral, Kenya citrus, Colombia sweet, limited high-end lot처럼 고객이 산지별 차이를 직관적으로 학습하게 만듭니다. 과발효보다 산미 구조와 촉감을 중시하는 편입니다.",
+        sown: "월별 라인업에는 산지 대비가 분명한 2종을 함께 두고, 컵노트 언어를 단순하게 정리하는 것이 좋습니다.",
+        source: "https://us.lacabra.com/products/array",
+        coffees: [
+          {
+            name: "Array - Sumava Typica",
+            origin: "Costa Rica",
+            farm: "Sumava, Francisco Mena",
+            variety: "Typica",
+            process: "Honey",
+            altitude: "",
+            notes: "intense sweetness, delicate floral aromatics",
+            read: "매일 마시고 싶은 La Cabra의 archetype을 보여주는 커피. 생산자와 프로세스의 정밀도로 단맛과 플로럴을 동시에 가져갑니다."
+          },
+          {
+            name: "Array - La Divina Washed SL28",
+            origin: "El Salvador, Santa Ana",
+            farm: "La Divina, Roberto Ulloa",
+            variety: "SL28",
+            process: "Washed",
+            altitude: "",
+            notes: "bright, berry-like",
+            read: "SL28을 Kenya가 아닌 El Salvador에서 보여주는 포지션. 품종의 산미 구조를 산지 이동으로 재해석합니다."
+          },
+          {
+            name: "Boundary - Dawencho Anaerobic",
+            origin: "Bursa, Sidama, Ethiopia",
+            farm: "Dawencho station, Mulugeta Muntasha",
+            variety: "Ethiopian landrace",
+            process: "Anaerobic",
+            altitude: "",
+            notes: "clear florals, ripe fruit",
+            read: "La Cabra가 실험 가공을 쓸 때도 '탁한 발효감'보다 명료한 플로럴과 익은 과일을 강조한다는 신호입니다."
+          }
+        ]
+      },
+      {
+        roaster: "Manhattan Coffee Roasters",
+        market: "Rotterdam / competition leaning",
+        thesis: "희소 품종, 고가 마이크로랏, 강한 과일 캐릭터로 브랜드 화제성을 만드는 라인업.",
+        intent: "Manhattan은 Gesha, Pink Bourbon, anaerobic fruit-forward lot 같은 커피를 브랜드 신호로 쓰고, clean daily filter를 함께 둬 가격 접근성을 남기는 식으로 보입니다.",
+        sown: "Rare Drop은 1종만 강하게 두고, 나머지는 가격 저항이 낮은 시즌 커피로 받쳐야 합니다.",
+        source: "https://www.coffeedb.pro/roasters/manhattan-coffee-roasters",
+        coffees: [
+          {
+            name: "Brooklyn",
+            origin: "Brazil Mata de Minas + Panama Volcan, Chiriqui",
+            farm: "Fazenda JS + Finca Santa Teresa",
+            variety: "Red/Yellow Catuai + Geisha",
+            process: "Anaerobic honey + washed",
+            altitude: "700m + 1,600m",
+            notes: "candied orange, praline, creamy",
+            read: "데일리 블렌드에도 Brazil의 단맛과 Panama Geisha의 우아함을 섞습니다. 접근성과 브랜드 프리미엄을 동시에 잡는 설계입니다."
+          },
+          {
+            name: "Letty Bermudez",
+            origin: "Cauca, Colombia",
+            farm: "El Paraiso / Diego Bermudez project",
+            variety: "Gesha",
+            process: "Anaerobic washed",
+            altitude: "",
+            notes: "high-impact tropical and floral profile",
+            read: "Manhattan의 대표적 화제성 슬롯. 생산자/공정 이름 자체가 매니아 고객에게 구매 이유가 됩니다."
+          },
+          {
+            name: "Rainbow",
+            origin: "Tolima, Colombia",
+            farm: "Colombian microlot",
+            variety: "Pink Bourbon",
+            process: "Anaerobic washed",
+            altitude: "",
+            notes: "fruit-forward, structured acidity",
+            read: "Pink Bourbon과 anaerobic washed의 조합으로, 고가 Gesha 아래 단계의 시즌 하이라이트를 만듭니다."
+          }
+        ]
+      },
+      {
+        roaster: "April Coffee",
+        market: "Copenhagen / minimal menu",
+        thesis: "적은 수의 커피로 메시지를 선명하게 만드는 미니멀 라인업.",
+        intent: "April은 clean washed lot, expressive natural, espresso-friendly sweet lot처럼 포지션을 적게 가져가며, 추출 레시피와 로스팅 일관성을 함께 판매합니다.",
+        sown: "SOWN은 너무 많은 실험 커피보다 4~5개 슬롯을 명확히 나누는 편이 브랜드 기억에 좋습니다.",
+        source: "https://www.aprilcoffeeroasters.com/pages/our-coffees",
+        coffees: [
+          {
+            name: "Volcan Azul farm selection",
+            origin: "Alajuela, Costa Rica",
+            farm: "Volcan Azul, Alejo Castro",
+            variety: "Farm seasonal varieties",
+            process: "Seasonal April selection",
+            altitude: "",
+            notes: "April favorite seasonal coffees",
+            read: "오래 함께한 생산자와 매년 반복되는 품질 신뢰를 전면에 둡니다. SOWN의 장기 파트너십형 라인업 참고점입니다."
+          },
+          {
+            name: "Pillcocaja farm selection",
+            origin: "Azuay Province, Ecuador",
+            farm: "Pillcocaja, Nicolas & Ana",
+            variety: "Seasonal farm lots",
+            process: "Seasonal selection",
+            altitude: "",
+            notes: "transparent Ecuador profile",
+            read: "Ecuador를 Rare Drop과 Seasonal Sweet 사이의 포지션으로 쓸 수 있음을 보여줍니다."
+          },
+          {
+            name: "Sustainable Profile Coffee - Colombia",
+            origin: "Colombia",
+            farm: "Sustainable Profile project",
+            variety: "Seasonal Colombian lots",
+            process: "Natural",
+            altitude: "",
+            notes: "classic identity, supply-chain transparency",
+            read: "맛뿐 아니라 공급망과 관계 철학을 상품명에 넣는 방식. SOWN도 가치 기반 라인업을 만들 수 있습니다."
+          }
+        ]
+      },
+      {
+        roaster: "Glitch Coffee",
+        market: "Tokyo / rare origin focus",
+        thesis: "방문 경험을 특별하게 만드는 희소 품종과 고가 옥션급 커피 중심.",
+        intent: "Glitch는 Panama Gesha, Ethiopia floral, Colombia exotic variety, high-scoring auction-like lot처럼 한 잔의 기억을 만드는 커피를 전면에 세우는 전략입니다.",
+        sown: "시그니처 경험용 고가 커피는 소량으로 두되, 설명 카드와 추출 경험을 같이 설계해야 설득력이 생깁니다.",
+        source: "https://glitchcoffee.com/",
+        coffees: [
+          {
+            name: "El Paraiso Red Plum",
+            origin: "Cauca, Colombia",
+            farm: "El Paraiso",
+            variety: "Castillo / El Paraiso project lot",
+            process: "Double Anaerobic Fermentation",
+            altitude: "",
+            notes: "red plum, high-impact fruit, clean sweetness",
+            read: "Glitch가 잘하는 '강한 경험'의 대표 타입. 공정 이름과 농장 명성이 고객의 기대값을 즉시 만듭니다."
+          },
+          {
+            name: "Villa Anthonella Tropical Washed Orange Bourbon",
+            origin: "Colombia",
+            farm: "Villa Anthonella",
+            variety: "Orange Bourbon",
+            process: "Tropical washed, wet fermentation in whole cherry form",
+            altitude: "",
+            notes: "tropical fruit character",
+            read: "washed라고 해도 발효 설계를 통해 열대과일 캐릭터를 명확히 만드는 커피입니다."
+          },
+          {
+            name: "Colombia Huila La Loma",
+            origin: "Huila, Colombia",
+            farm: "La Loma",
+            variety: "Colombian microlot",
+            process: "Innovative process",
+            altitude: "",
+            notes: "experimental Colombia profile",
+            read: "Glitch는 Colombia를 단순한 밸런스 산지가 아니라 실험적이고 기억에 남는 한 잔으로 재가공합니다."
+          }
+        ]
+      },
+      {
+        roaster: "Prodigal Coffee",
+        market: "Boulder / Scott Rao / precision roasting",
+        thesis: "클린한 워시드 Gesha와 과일감이 큰 anaerobic lot을 동시에 운영해, 기술적 정밀도와 즐거움을 모두 보여주는 라인업.",
+        intent: "Prodigal은 Boulder Blend 같은 데일리 포지션을 두면서도 Caminos del Inka, Finca Las Delicias, Finca Las Palmas처럼 고가 Gesha와 anaerobic Bourbon Aji를 함께 배치합니다. 이는 '매일 마실 수 있는 밝고 균형 잡힌 커피'와 '구독자/매니아가 반응할 화제성 있는 커피'를 동시에 잡으려는 구성으로 보입니다.",
+        sown: "SOWN도 데일리 필터를 너무 평범하게 두지 말고, 클린컵 기반에 과일 단맛이 있는 커피를 Core로 세운 뒤 Experimental은 1종만 강하게 가져가는 방식이 좋습니다.",
+        source: "https://thepress.coffee/roasters/prodigal-coffee/",
+        coffees: [
+          {
+            name: "Caminos del Inka",
+            origin: "Cusco, Peru",
+            farm: "Samuel Smith Perez",
+            variety: "Geisha",
+            process: "48h open-tank fermentation, washed, 15-20 days raised African beds",
+            altitude: "",
+            notes: "ripe peach, orange, creamy body, coffee cherry",
+            read: "Peru Gesha를 anaerobic 처리로 더 화사하게 만든 고가 싱글오리진. 단순 희소성보다 복합성과 질감으로 설득합니다."
+          },
+          {
+            name: "Finca Las Delicias",
+            origin: "Narino, Colombia",
+            farm: "Finca Las Delicias, Jesus Angel Lopez",
+            variety: "Geisha",
+            process: "Washed, density sorting, pulping, 24h tank fermentation, 15-20 days drying",
+            altitude: "",
+            notes: "stone fruit, earl grey, berry clarity",
+            read: "워시드 Gesha지만 익은 과일감을 강조합니다. Prodigal이 선호하는 '클린하지만 심심하지 않은' 방향입니다."
+          },
+          {
+            name: "Finca Las Palmas",
+            origin: "Huila, Colombia",
+            farm: "Finca Las Palmas",
+            variety: "Bourbon Aji",
+            process: "Double anaerobic washed, 40h pre-depulping + 80h post-depulping, patio drying",
+            altitude: "",
+            notes: "purple fruit, winey berries, jammy, zesty acidity",
+            read: "구독자 반응을 만들기 좋은 실험 가공 슬롯. 하지만 washed clarity와 natural fruit intensity 사이의 균형을 강조합니다."
+          }
+        ]
+      },
+      {
+        roaster: "Monogram Coffee",
+        market: "Calgary / flavour moods / approachable specialty",
+        thesis: "관계 기반 커피와 플레이리스트식 맛 분류로, 스페셜티를 어렵지 않게 고르게 만드는 라인업.",
+        intent: "Monogram은 Galeras 같은 washed Colombia를 'Chocolatey Comforts'로 포지셔닝합니다. 농장·프로세스 정보는 충분히 제공하지만, 고객이 먼저 이해하는 언어는 chocolate, almond, nougat 같은 맛 무드입니다. 전문성과 접근성을 동시에 잡으려는 선택입니다.",
+        sown: "SOWN 추천 원두도 '산지/품종'만 말하기보다 Core, Seasonal Sweet, Rare Drop 같은 고객 언어로 재분류하면 판매 설명이 쉬워집니다.",
+        source: "https://monogramcoffee.com/en-us/products/galeras",
+        coffees: [
+          {
+            name: "Galeras",
+            origin: "Galeras, Narino, Colombia",
+            farm: "Community lot, around 200 smallholder producers",
+            variety: "Caturra, Castillo",
+            process: "Washed, 25h fermentation, parabolic dryer controlled-temperature drying",
+            altitude: "",
+            notes: "chocolate, almond, nougat",
+            read: "고객 친화적인 데일리 필터/에스프레소 후보. 커피의 개성을 과하게 밀기보다 안정적 단맛과 관계 기반 스토리를 강조합니다."
+          },
+          {
+            name: "Deborah Terroir",
+            origin: "Panama",
+            farm: "Ninety Plus / Deborah project",
+            variety: "Gesha",
+            process: "Classic washed",
+            altitude: "",
+            notes: "gesha elegance, clean florality",
+            read: "Monogram도 고가 Gesha 슬롯을 통해 어워드/희소성 신호를 유지합니다. 단, 과발효보다 고전적 washed elegance 쪽입니다."
+          }
+        ]
+      },
+      {
+        roaster: "Philocoffea",
+        market: "Funabashi / Tetsu Kasuya / producer storytelling",
+        thesis: "월드 브루어스컵 챔피언의 큐레이션을 바탕으로, 생산자·농장·로스팅 해석까지 자세히 전달하는 라인업.",
+        intent: "Philocoffea는 단순히 희귀한 커피를 파는 것이 아니라, 농장을 직접 추적하고 생산자의 노력과 로스팅 해석을 같이 설명합니다. La Esmeralda Geisha Washed처럼 농장, 생산자, 고도, 품종, 프로세스, 로스팅 의도까지 아주 세밀하게 풀어 고객의 신뢰를 만듭니다.",
+        sown: "SOWN도 고가 커피를 낼 때는 '맛있다'보다 왜 이 농장인지, 어떤 처리와 로스팅 판단이 있었는지까지 카드로 설명해야 합니다.",
+        source: "https://en.philocoffea.com/collections/coffee/products/709-colombia-la-esmeralda-geisha-washed",
+        coffees: [
+          {
+            name: "709 Colombia La Esmeralda Geisha Washed",
+            origin: "San Ishidro, Planadas, Tolima, Colombia",
+            farm: "La Esmeralda, Rubiela Velasquez",
+            variety: "Geisha",
+            process: "Fully Washed",
+            altitude: "1,900-2,000m",
+            notes: "red apple, floral, plum, hazelnut, honey, mandarin orange, bright acidity, juicy",
+            read: "고도 높은 Tolima Geisha를 전통 워시드로 선보입니다. Philocoffea는 샘플 로스팅에서 산미와 과일 단맛을 더 밝게 만들기 위해 열량과 로스팅 시간을 조정했다고 설명합니다."
+          }
+        ]
+      },
+      {
+        roaster: "Ilse Coffee",
+        market: "North Canaan / clean hype / producer-forward",
+        thesis: "워시드 중심의 선명한 산미와 콜롬비아·케냐·에티오피아 마이크로랏을 통해 '클린하지만 강렬한' 하이프를 만드는 라인업.",
+        intent: "Ilse는 The Press에서 Colombia Augusto Ortega, Kenya Gititu AA, Monkaaba decaf 같은 커피가 함께 보입니다. 과한 공동발효보다는 SL-28, Pink Bourbon, 고품질 워시드, 명확한 농장/스테이션 스토리로 매니아가 신뢰할 수 있는 긴장감을 만듭니다.",
+        sown: "SOWN이 Ilse에서 배울 점은 실험 가공 없이도 충분히 하이프를 만들 수 있다는 점입니다. 케냐 AA, 콜롬비아 Pink Bourbon/SL-28 같은 클린컵 하이라이트를 Core와 Rare 사이에 배치하면 좋습니다.",
+        source: "https://thepress.coffee/",
+        coffees: [
+          {
+            name: "Colombia | Augusto Ortega",
+            origin: "San Agustin, Colombia",
+            farm: "Augusto Ortega",
+            variety: "SL-28",
+            process: "Washed",
+            altitude: "",
+            notes: "limeade, tropical red fruit, navel orange, mouthwatering acidity",
+            read: "Ilse식 하이프는 발효 과시보다 품종과 산미의 선명도에서 나옵니다. SL-28을 Colombia에서 보여주는 점이 매니아에게 강한 구매 이유가 됩니다."
+          },
+          {
+            name: "Kenya | Gititu AA",
+            origin: "Kiambu, Kenya",
+            farm: "Gititu community washing station",
+            variety: "SL-28, SL-34, Ruiru 11, Batian",
+            process: "Washed, underwater fermentation, raised-bed drying",
+            altitude: "1,300-1,700m",
+            notes: "hibiscus, orange, lingonberry jam, amber honey",
+            read: "클래식 케냐의 산미와 꽃 향을 현대적으로 보여주는 포지션입니다. SOWN의 Core Filter와 Seasonal Bright 사이에 놓기 좋습니다."
+          },
+          {
+            name: "Decaf Colombia | Monkaaba",
+            origin: "Colombia",
+            farm: "Monkaaba project",
+            variety: "Colombian decaf lot",
+            process: "Sugarcane Washed",
+            altitude: "",
+            notes: "brown sugar, wafer cookie, citrus",
+            read: "하이프 로스터리도 decaf를 단순 보조 메뉴가 아니라 품질 라인업 일부로 다룹니다. SOWN도 디카페인을 별도 경험으로 설계할 수 있습니다."
+          }
+        ]
+      },
+      {
+        roaster: "Hydrangea Coffee",
+        market: "Portland / process-forward hype",
+        thesis: "Finca El Paraiso, Cafe Granja La Esperanza, Monteblanco 같은 강한 생산자/프로세스 이름을 전면에 세우는 하이프 라인업.",
+        intent: "Hydrangea는 The Press에서 15개 라인업이 보이며, Castillo Lychee Thermal Shock, Gesha Salma Bermudez, Sudan Rume Natural, Pink Bourbon/Gesha 같은 강한 이름의 커피를 촘촘하게 운영합니다. 고객에게 '지금 아니면 못 마시는 맛'이라는 긴박감을 주는 구성입니다.",
+        sown: "SOWN은 Hydrangea처럼 모든 슬롯을 강한 발효 커피로 채우기보다, Experimental 1종과 Rare Drop 1종만 강하게 두고 나머지는 클린컵으로 균형을 잡는 편이 좋습니다.",
+        source: "https://thepress.coffee/roasters/hydrangea-coffee",
+        coffees: [
+          {
+            name: "Castillo - Lychee - Finca El Paraiso",
+            origin: "Cauca, Colombia",
+            farm: "Finca El Paraiso, Samuel Diego Bermudez",
+            variety: "Castillo",
+            process: "Double Anaerobic Thermal Shock",
+            altitude: "1,960 masl",
+            notes: "lychee, osmanthus, Kasugai gummies, malic acidity",
+            read: "Hydrangea의 정체성을 가장 직관적으로 보여주는 커피입니다. 생산자와 프로세스명이 곧 마케팅 언어가 됩니다."
+          },
+          {
+            name: "Gesha - Salma Bermudez - Finca El Paraiso",
+            origin: "Cauca, Colombia",
+            farm: "Finca El Paraiso",
+            variety: "Geisha",
+            process: "Special Fermentation Washed, 72h submerged anaerobic fermentation with yeast",
+            altitude: "1,930m",
+            notes: "mango, dulce de leche, elderflower, silky body",
+            read: "Gesha와 Bermudez 프로세스의 조합으로 희소성과 발효 기술을 동시에 팝니다. SOWN의 Rare Drop 참고 모델입니다."
+          },
+          {
+            name: "Sudan Rume - Natural - Finca Las Margaritas",
+            origin: "Cauca, Colombia",
+            farm: "Finca Las Margaritas, Cafe Granja La Esperanza",
+            variety: "Sudan Rume",
+            process: "Natural",
+            altitude: "1,570-1,850m",
+            notes: "bright cherry, bergamot florality, papaya",
+            read: "희소 품종과 자연 발효 단맛을 결합한 고가 필터 포지션입니다. 메뉴 설명이 강하면 한 잔 단가를 올릴 수 있습니다."
+          }
+        ]
+      },
+      {
+        roaster: "Black & White Coffee Roasters",
+        market: "Raleigh / playful process-forward",
+        thesis: "advanced fermentation, co-ferment, experimental profile을 대중적으로 팔아내는 프로세스 포워드 로스터리.",
+        intent: "The Press 메인 리스트에서 Baolian Lychee Peach Advanced 같은 커피가 보입니다. Yunnan Catimor를 Diego Bermudez식 발효 멘토링과 proprietary yeast로 재해석해, 산지의 고정관념을 깨는 재미를 만듭니다.",
+        sown: "SOWN이 실험 커피를 낼 때는 '이상한 맛'이 아니라 '왜 이 프로세스가 맛을 바꿨는지'를 설명해야 합니다. Black & White는 그 설명 언어를 잘 만드는 참고점입니다.",
+        source: "https://thepress.coffee/",
+        coffees: [
+          {
+            name: "Baolian Lychee Peach - Advanced",
+            origin: "Licang, Yunnan, China",
+            farm: "Yi Nian Yi Su Collective",
+            variety: "Catimor",
+            process: "Extended anaerobic fermentation with proprietary yeast blend",
+            altitude: "1,500-1,600 masl",
+            notes: "lychee candy, peach, wildflower honey, white tea",
+            read: "중국 Catimor를 콜롬비아식 발효 언어로 재해석한 커피입니다. 산지보다 프로세스와 맛 경험을 먼저 팔 수 있음을 보여줍니다."
+          },
+          {
+            name: "The Natural",
+            origin: "Seasonal rotating origins",
+            farm: "Rotating seasonal lots",
+            variety: "Seasonal",
+            process: "Natural",
+            altitude: "",
+            notes: "fruit-forward, approachable natural profile",
+            read: "입문자가 자연가공을 이해하기 쉬운 관문형 상품입니다. SOWN도 Experimental 아래 단계로 접근성 있는 Natural 슬롯을 둘 수 있습니다."
+          }
+        ]
+      },
+      {
+        roaster: "Regalia Coffee",
+        market: "Los Angeles / precise single-origin / clean sourcing",
+        thesis: "화려한 공동발효보다 지속가능한 생산자 관계, 클린 싱글오리진, 고품질 디카페인을 통해 신뢰를 만드는 라인업.",
+        intent: "Regalia는 The Press에서 13개 라인업, Updated May 24, 2026으로 보이며 Decaf de Huila 같은 커피를 자세히 소개합니다. 하이프를 과한 프로세스가 아니라 정밀한 소싱과 깔끔한 맛 구조로 만드는 쪽에 가깝습니다.",
+        sown: "SOWN은 Regalia를 참고해 디카페인을 보조 메뉴가 아니라 하나의 큐레이션 슬롯으로 다룰 수 있습니다. 클린한 싱글오리진과 품질 좋은 decaf를 함께 두면 라인업 신뢰도가 올라갑니다.",
+        source: "https://thepress.coffee/roasters/regalia-coffee/",
+        coffees: [
+          {
+            name: "Decaf de Huila",
+            origin: "Huila, Colombia",
+            farm: "Huila regional decaf blend",
+            variety: "Colombian regional lot",
+            process: "Washed, Ethyl Acetate sugar-cane decaffeination",
+            altitude: "1,400-2,000m",
+            notes: "white tea, almond butter, delicate aromatics",
+            read: "The Press 설명 기준, 디카페인이지만 white tea 같은 섬세함과 almond butter 질감을 강조합니다. SOWN이 decaf를 진지한 선택지로 만들 때 참고하기 좋습니다."
+          },
+          {
+            name: "Regalia single-origin focus",
+            origin: "Seasonal global origins",
+            farm: "Sustainable producer partners",
+            variety: "Seasonal single-origin lots",
+            process: "Mostly clean washed / transparent processing",
+            altitude: "",
+            notes: "clean sweetness, balanced acidity, transparent terroir",
+            read: "Regalia의 장점은 과한 캐릭터보다 안정적이고 정밀한 소싱 언어입니다. SOWN의 Core Filter 신뢰도를 보강하는 참고 로스터리입니다."
+          }
+        ]
+      },
+      {
+        roaster: "Onyx Coffee Lab",
+        market: "Rogers / award-winning broad portfolio",
+        thesis: "경쟁력 있는 희소 싱글오리진부터 Cold Brew, Eclipse 같은 사용 목적별 제품까지 넓게 운영하는 미국 스페셜티 대표 로스터리.",
+        intent: "Onyx는 The Press에서 33개 재고, 34개 라인업, Updated May 12, 2026으로 보입니다. Burundi natural/washed, Colombia Gesha/Pink Bourbon, cold brew 전용 로스트, dark roast까지 함께 운영해 매니아와 대중 고객을 동시에 잡는 구조입니다.",
+        sown: "SOWN은 Onyx처럼 Rare/Seasonal만 보는 것이 아니라 아이스, 우유, 데일리, 하이라이트 슬롯을 모두 설계해야 합니다. 특히 여름에는 cold brew 전용 생두/로스팅 포지션을 별도로 둘 만합니다.",
+        source: "https://thepress.coffee/roasters/onyx-coffee-lab/",
+        coffees: [
+          {
+            name: "Colombia Brayan Smith Gesha",
+            origin: "Pitalito, Huila, Colombia",
+            farm: "Brayan Smith, third-generation grower",
+            variety: "Geisha",
+            process: "Washed",
+            altitude: "1,500-1,800m",
+            notes: "Colombian heritage, modern specialty craft, expressive varietal clarity",
+            read: "Onyx의 하이라이트 싱글오리진 슬롯입니다. 고가 희소 품종이지만 washed clarity로 설득하는 점이 SOWN Rare Drop 설계에 참고됩니다."
+          },
+          {
+            name: "Burundi Long Miles Munyinya Hill",
+            origin: "Munyinya Hill, Burundi",
+            farm: "Long Miles Coffee Project",
+            variety: "Burundi smallholder lot",
+            process: "Washed",
+            altitude: "",
+            notes: "fig, blackberry, caramelized sugar",
+            read: "생산 프로젝트와 테루아 추적성을 강조하는 관계 기반 커피입니다. Core Filter에 스토리를 붙이는 방법을 보여줍니다."
+          },
+          {
+            name: "Burundi Campazi Natural",
+            origin: "Kayanza Province, Burundi",
+            farm: "Campazi lot",
+            variety: "Burundi regional lot",
+            process: "Natural",
+            altitude: "",
+            notes: "tart grapefruit, butterscotch finish",
+            read: "워시드 정밀도와 내추럴 복합성 사이를 잇는 커피입니다. SOWN의 Seasonal Sweet 후보를 설명할 때 좋은 비교점입니다."
+          },
+          {
+            name: "Cold Brew",
+            origin: "Colombia",
+            farm: "Cold brew specific Colombian lot",
+            variety: "Colombian lot",
+            process: "Washed, roast engineered for cold extraction",
+            altitude: "",
+            notes: "cocoa, dates, creamy mouthfeel, low acidity",
+            read: "Onyx가 맛뿐 아니라 사용 목적별 제품을 설계한다는 증거입니다. SOWN도 여름 시즌에는 추출 목적 중심의 생두 선택이 필요합니다."
+          }
+        ]
+      }
+    ];
+
+    function clean(value) {
+      return String(value || "").replace(/\s+/g, " ").trim();
+    }
+
+    function won(value) {
+      const number = Number(value || 0);
+      return number > 0 ? `${number.toLocaleString("ko-KR")}원` : "-";
+    }
+
+    function canonicalProcess(value) {
+      const text = clean(value).toLowerCase();
+      if (!text) return "미분류";
+      if (/anaerobic|무산소|carbonic|infusion|thermal|co-?ferment|인퓨전|카보닉/i.test(text)) return "Experimental";
+      if (/natural|내추럴|네추럴/i.test(text)) return "Natural";
+      if (/washed|워시드|풀리/i.test(text)) return "Washed";
+      if (/honey|허니/i.test(text)) return "Honey";
+      if (/decaf|디카페인/i.test(text)) return "Decaf";
+      if (/wet hulled|웻훌/i.test(text)) return "Wet Hulled";
+      return clean(value);
+    }
+
+    function noteFamily(bean) {
+      const source = `${bean.cupping_note || ""} ${bean.name || ""}`.toLowerCase();
+      const groups = [
+        ["Floral", /floral|flower|jasmine|rose|violet|꽃|플로럴|자스민|장미/],
+        ["Citrus", /citrus|orange|lemon|lime|grapefruit|bergamot|시트러스|오렌지|레몬|라임|자몽|베르가못/],
+        ["Tropical", /tropical|mango|pineapple|passion|melon|peach|망고|파인애플|패션|멜론|복숭아/],
+        ["Berry", /berry|strawberry|blueberry|raspberry|cherry|베리|딸기|블루베리|체리/],
+        ["Sweet", /honey|caramel|brown sugar|molasses|초콜릿|초코|꿀|카라멜|흑설탕/]
+      ];
+      return groups.find(([, pattern]) => pattern.test(source))?.[0] || "Clean";
+    }
+
+    function isExperimental(bean) {
+      return canonicalProcess(bean.process) === "Experimental";
+    }
+
+    function isBuyable(bean) {
+      return bean.stock_status !== "sold_out" && Boolean(bean.external_url || bean.source || bean.wonderroom_url);
+    }
+
+    function countBy(items, getter) {
+      const map = new Map();
+      items.forEach((item) => {
+        const key = clean(getter(item)) || "미분류";
+        map.set(key, (map.get(key) || 0) + 1);
+      });
+      return [...map.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ko"));
+    }
+
+    function uniqueSorted(items, getter) {
+      return [...new Set(items.map(getter).map(clean).filter(Boolean))].sort((a, b) => a.localeCompare(b, "ko"));
+    }
+
+    function scoreBean(bean) {
+      let score = 45;
+      const process = canonicalProcess(bean.process);
+      const notes = noteFamily(bean);
+      const name = `${bean.name || ""} ${bean.variety || ""}`.toLowerCase();
+      if (isBuyable(bean)) score += 12;
+      if (process === "Washed") score += 9;
+      if (process === "Experimental") score += 11;
+      if (process === "Natural") score += 6;
+      if (["Floral", "Citrus", "Tropical"].includes(notes)) score += 10;
+      if (/gesha|게샤|게이샤|pink bourbon|핑크|chiroso|치로소|sl28|typica mejorado/i.test(name)) score += 12;
+      if (Number(bean.price || 0) > 0 && Number(bean.price) <= 45000) score += 8;
+      if (Number(bean.price || 0) > 90000) score += 4;
+      return Math.min(100, score);
+    }
+
+    function arrivalText(bean) {
+      return clean(bean.arrival_date || bean.arrivalDate || bean.created_at) || "입고일 확인 필요";
+    }
+
+    function recommendationReason(bean, slot = "") {
+      if (!bean) return "후보 데이터가 부족해 샘플 확인이 필요합니다.";
+      const process = canonicalProcess(bean.process);
+      const note = noteFamily(bean);
+      const rare = /gesha|게샤|게이샤|pink bourbon|핑크|chiroso|치로소|sl28/i.test(`${bean.name} ${bean.variety}`);
+      const parts = [];
+      if (rare) parts.push("글로벌 로스터리들이 쓰는 희소 품종 신호와 맞습니다");
+      if (process === "Washed") parts.push("클린컵 기준 커피로 쓰기 좋습니다");
+      if (process === "Experimental") parts.push("소량 실험 라인으로 화제성을 만들 수 있습니다");
+      if (process === "Natural") parts.push("과일 단맛이 뚜렷한 시즌 커피로 설명하기 쉽습니다");
+      if (["Floral", "Citrus", "Tropical", "Berry"].includes(note)) parts.push(`${note} 계열 컵노트가 시즌성과 잘 맞습니다`);
+      if (Number(bean.price || 0) > 0 && Number(bean.price) <= 45000) parts.push("가격 저항이 낮아 테스트 발주에 적합합니다");
+      if (slot === "Milk / Espresso") parts.push("우유 메뉴에서 단맛과 바디를 만들기 좋은 포지션입니다");
+      if (!parts.length) parts.push("현재 후보군 안에서 점수와 구매 가능성이 안정적입니다");
+      return parts.slice(0, 2).join(" ");
+    }
+
+    function filteredBeans() {
+      const query = state.filters.search.toLowerCase();
+      const maxPrice = Number(state.filters.maxPrice || 0);
+      return state.beans.filter((bean) => {
+        const haystack = [
+          bean.name, bean.country, bean.region, bean.farm, bean.seller,
+          bean.process, bean.variety, bean.cupping_note
+        ].map(clean).join(" ").toLowerCase();
+        if (query && !haystack.includes(query)) return false;
+        if (state.filters.origin && clean(bean.country) !== state.filters.origin) return false;
+        if (state.filters.process && canonicalProcess(bean.process) !== state.filters.process) return false;
+        if (state.filters.seller && clean(bean.seller) !== state.filters.seller) return false;
+        if (maxPrice && Number(bean.price || 0) > maxPrice) return false;
+        return true;
+      });
+    }
+
+    function fillSelect(select, values, current) {
+      const firstLabel = select.options[0]?.textContent || "전체";
+      select.innerHTML = `<option value="">${firstLabel}</option>`;
+      values.forEach((value) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value;
+        select.appendChild(option);
+      });
+      select.value = current;
+    }
+
+    function updateFilters() {
+      fillSelect(elements.originFilter, uniqueSorted(state.beans, (bean) => bean.country), state.filters.origin);
+      fillSelect(elements.sellerFilter, uniqueSorted(state.beans, (bean) => bean.seller), state.filters.seller);
+      fillSelect(elements.processFilter, uniqueSorted(state.beans, (bean) => canonicalProcess(bean.process)), state.filters.process);
+    }
+
+    function renderBars(target, rows) {
+      const max = rows[0]?.[1] || 1;
+      const total = rows.reduce((sum, [, count]) => sum + count, 0) || 1;
+      target.innerHTML = rows.slice(0, 8).map(([label, count]) => `
+        <div class="bar-row">
+          <span class="bar-label" title="${label}">${label}</span>
+          <span class="bar-track" title="${count}개 / ${Math.round((count / total) * 100)}%">
+            <span class="bar-fill" style="width:${Math.max(3, (count / max) * 100)}%"></span>
+          </span>
+          <span class="bar-count">${count} · ${Math.round((count / total) * 100)}%</span>
+        </div>
+      `).join("") || `<div class="loading">표시할 데이터가 없습니다.</div>`;
+    }
+
+    function renderLineup(items) {
+      const ranked = [...items].sort((a, b) => scoreBean(b) - scoreBean(a));
+      const byProcess = (process) => ranked.find((bean) => canonicalProcess(bean.process) === process);
+      const byNote = (note) => ranked.find((bean) => noteFamily(bean) === note);
+      const lineup = [
+        ["C", "Core Filter", byProcess("Washed") || ranked[0], "매장 기준이 되는 깨끗한 필터. 산미와 투명도가 좋은 워시드 계열을 우선합니다."],
+        ["S", "Seasonal Sweet", byNote("Tropical") || byNote("Berry") || ranked[1], "계절감 있는 과일 단맛. 아이스 브루와 핸드드립 모두에서 설명하기 쉬운 포지션입니다."],
+        ["E", "Experimental", byProcess("Experimental") || ranked[2], "무산소/인퓨전 계열은 소량 출시로 반응을 봅니다. 발효감이 과한 후보는 컷합니다."],
+        ["M", "Milk / Espresso", ranked.find((bean) => /brazil|브라질|colombia|콜롬비아/i.test(bean.country || "")) || ranked[3], "우유와 잘 맞는 단맛, 바디, 가격 안정성을 우선합니다."],
+        ["R", "Rare Drop", ranked.find((bean) => /gesha|게샤|게이샤|pink bourbon|핑크|chiroso|치로소/i.test(`${bean.name} ${bean.variety}`)) || ranked[4], "브랜드 신호를 만드는 소량 고가 라인. 구매 수량은 작게 시작합니다."]
+      ];
+
+      elements.lineupList.innerHTML = lineup.map(([icon, title, bean, fallback]) => `
+        <article class="lineup">
+          <span class="lineup-icon">${icon}</span>
+          <div class="lineup-body">
+            <strong>${title}</strong>
+            ${bean ? `
+              <p class="lineup-name">${clean(bean.name)} 후보</p>
+              <div class="lineup-meta">
+                <span>${clean(bean.country) || "미분류"}</span>
+                <span>${canonicalProcess(bean.process)}</span>
+                <span>${arrivalText(bean)}</span>
+                <span>${won(bean.price)}</span>
+              </div>
+              <p class="lineup-reason">${recommendationReason(bean, title)}</p>
+              <a class="lineup-link" href="${linkFor(bean)}" target="_blank" rel="noopener">구매하기</a>
+            ` : `<p>${fallback}</p>`}
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderSignals(items, originRows, processRows, noteRows) {
+      const topOrigin = originRows[0]?.[0] || "미분류";
+      const topProcess = processRows[0]?.[0] || "미분류";
+      const topNote = noteRows[0]?.[0] || "Clean";
+      const experimental = items.filter(isExperimental).length;
+      const buyable = items.filter(isBuyable).length;
+      elements.signalList.innerHTML = [
+        [`${topOrigin} 집중도`, `현재 후보군에서 가장 많이 보이는 산지는 ${topOrigin}입니다. 한 시즌에 2개 이상 넣을 경우 프로세스나 컵노트 대비를 분명히 두는 편이 좋습니다.`],
+        [`${topProcess} 흐름`, `${topProcess} 계열이 가장 강합니다. SOWN은 Core와 Seasonal을 나누어 같은 산지라도 경험을 다르게 설계할 수 있습니다.`],
+        [`실험 가공 ${experimental}개`, experimental ? "Anaerobic, Infusion, Thermal, Co-ferment 등으로 분류된 후보입니다. 화제성은 좋지만 메뉴 전체가 발효 캐릭터로 기울지 않도록 1개 슬롯만 권합니다." : "Anaerobic, Infusion, Thermal, Co-ferment 등으로 분류된 후보가 적습니다. 이번 시즌은 클린컵과 단맛 중심으로 잡는 편이 안정적입니다."],
+        [`구매 가능 ${buyable}개`, "구매 링크와 재고 신호가 있는 후보를 우선 정렬했습니다. 실제 발주는 샘플 컵핑 후 가격대별로 한 번 더 컷하세요."]
+      ].map(([title, body]) => `<article class="signal"><strong>${title}</strong><p>${body}</p></article>`).join("");
+
+      elements.originInsight.textContent = `${topOrigin} 비중이 가장 높고, 다음 산지는 ${originRows[1]?.[0] || "아직 부족"}입니다.`;
+      elements.processInsight.textContent = `${topProcess} 중심으로 움직입니다. Experimental은 ${experimental}개입니다.`;
+      elements.noteInsight.textContent = `${topNote} 계열 컵노트가 가장 많이 감지됩니다.`;
+      elements.buyingInsight.textContent = `${buyable}개 후보가 구매 링크를 갖고 있습니다.`;
+    }
+
+    function roasterTrendSummary() {
+      const allCoffeeText = globalRoasterLineups
+        .flatMap((item) => item.coffees || [])
+        .map((coffee) => `${coffee.name} ${coffee.variety} ${coffee.process} ${coffee.notes}`)
+        .join(" ");
+      const rareCount = (allCoffeeText.match(/gesha|geisha|pink bourbon|chiroso/gi) || []).length;
+      const washedCount = (allCoffeeText.match(/washed|fully washed|워시드/gi) || []).length;
+      const experimentalCount = (allCoffeeText.match(/anaerobic|natural|honey|fermentation/gi) || []).length;
+      return {
+        rareCount,
+        washedCount,
+        experimentalCount,
+        core: "클린컵 기준 + 희소/실험 슬롯",
+        reason: "상위 로스터리들은 전 라인업을 실험 커피로 채우기보다, 기준이 되는 클린컵과 브랜드 신호가 되는 희소 커피를 함께 둡니다."
+      };
+    }
+
+    function renderRoasterReading() {
+      const trend = roasterTrendSummary();
+      elements.roasterUpdatedAt.textContent = reportUpdatedAt;
+      elements.roasterUpdatedInline.textContent = `라인업 기준일: ${reportUpdatedAt}`;
+      elements.roasterReportHeadline.textContent = `현재 글로벌 신호: 워시드 클린컵 + 희소 품종 + 제한적 실험 가공`;
+      elements.roasterReportSummary.textContent = `${reportUpdatedAt} 기준, 관찰 대상 ${globalRoasterLineups.length}곳에서 Gesha/Geisha/Pink Bourbon/Chiroso 같은 희소 품종 신호가 ${trend.rareCount}회, washed 계열 신호가 ${trend.washedCount}회 감지됩니다.`;
+      elements.globalReportList.innerHTML = [
+        ["핵심 결론", "유명 로스터리들은 라인업 전체를 실험 가공으로 채우지 않습니다. 기준이 되는 워시드/클린컵을 중심에 두고, 브랜드 신호가 되는 Gesha·Pink Bourbon·Chiroso·anaerobic lot을 제한적으로 배치합니다."],
+        ["왜 이렇게 가져오는가", "구독/리테일 고객에게는 반복 구매 가능한 데일리 포지션이 필요하고, 매니아 고객에게는 방문 이유가 되는 희소 커피가 필요합니다. 그래서 한 로스터리 안에서도 Core, Seasonal, Experimental, Rare의 가격 사다리가 동시에 보입니다."],
+        ["SOWN이 읽어야 할 점", "SOWN은 희소 커피를 많이 들여오는 것보다, 고객이 이해하기 쉬운 기준 커피 1종과 기억에 남는 하이라이트 1종을 명확히 나누는 편이 좋습니다."]
+      ].map(([title, body]) => `<article class="report-item"><strong>${title}</strong><p>${body}</p></article>`).join("");
+
+      elements.roasterList.innerHTML = globalRoasterLineups.map((item) => `
+        <article class="roaster-card">
+          <div class="roaster-card-head">
+            <div>
+              <strong>${item.roaster}</strong>
+              <p>${item.market}</p>
+            </div>
+            <span class="roaster-count">${(item.coffees || []).length} coffees</span>
+          </div>
+          <div class="roaster-meta">
+            <span>${item.thesis}</span>
+          </div>
+          <div class="roaster-why">
+            <p class="roaster-section-title">Lineup Reading</p>
+            <p><b>무엇을 파고 있나:</b> ${item.thesis}</p>
+            <p><b>왜 이런 라인업을 가져온 것 같나:</b> ${item.intent}</p>
+            <p><b>SOWN 힌트:</b> ${item.sown}</p>
+          </div>
+          <div class="coffee-details">
+            <p class="roaster-section-title">Coffee Detail</p>
+            ${(item.coffees || []).map((coffee) => `
+              <section class="coffee-detail">
+                <h4>${coffee.name}</h4>
+                <dl>
+                  <dt>산지</dt><dd>${coffee.origin || "-"}</dd>
+                  <dt>농장</dt><dd>${coffee.farm || "-"}</dd>
+                  <dt>품종</dt><dd>${coffee.variety || "-"}</dd>
+                  <dt>프로세스</dt><dd>${coffee.process || "-"}</dd>
+                  <dt>고도</dt><dd>${coffee.altitude || "-"}</dd>
+                  <dt>컵노트</dt><dd>${coffee.notes || "-"}</dd>
+                  <dt>해석</dt><dd>${coffee.read || "-"}</dd>
+                </dl>
+              </section>
+            `).join("")}
+          </div>
+          ${item.source ? `<a class="source-link" href="${item.source}" target="_blank" rel="noopener">라인업 출처 열기</a>` : ""}
+        </article>
+      `).join("");
+    }
+
+    function renderReport(items, originRows, processRows, noteRows) {
+      const topOrigin = originRows[0]?.[0] || "미분류";
+      const topProcess = processRows[0]?.[0] || "미분류";
+      const topNote = noteRows[0]?.[0] || "Clean";
+      const roasterTrend = roasterTrendSummary();
+      elements.reportList.innerHTML = [
+        ["Global Roaster Reading", `관찰 로스터리들은 ${roasterTrend.core} 중심의 기준축을 두고, Gesha/Pink Bourbon/고가 로트 같은 희소 슬롯을 브랜드 신호로 쓰는 흐름입니다. ${roasterTrend.reason}`],
+        ["Why They Brought These Coffees", "Sey·La Cabra·April 계열은 클린컵과 산지 대비를, Manhattan·Glitch 계열은 희소 품종과 화제성을 전면에 둡니다. 즉 라인업은 맛뿐 아니라 브랜드 포지셔닝과 가격 사다리를 같이 설계한 결과로 보입니다."],
+        ["SOWN Translation", `${monthText}은 글로벌 신호를 그대로 복제하기보다 ${topOrigin}, ${topProcess}, ${topNote} 컵노트를 SOWN 고객이 이해하기 쉬운 5개 슬롯으로 번역하는 편이 좋습니다.`],
+        ["What To Launch", "Core Filter 1종, Seasonal Sweet 1종, Experimental 1종, Milk/Espresso 1종, Rare Drop 1종의 5슬롯 구성을 권합니다."],
+        ["What To Avoid", "같은 산지의 비슷한 과일 캐릭터를 반복하거나, 실험 가공을 2종 이상 동시에 내는 구성은 피하는 편이 좋습니다."],
+        ["Buying Brief", `총 ${items.length}개 후보 중 상위 점수 원두를 샘플링하고, 250g 소비자가 기준 가격 설명이 가능한지 확인하세요.`]
+      ].map(([title, body]) => `<article class="report-item"><strong>${title}</strong><p>${body}</p></article>`).join("");
+    }
+
+    function linkFor(bean) {
+      return bean.external_url || bean.source || bean.wonderroom_url || "#";
+    }
+
+    function badgeFor(bean) {
+      const process = canonicalProcess(bean.process);
+      if (process === "Experimental") return `<span class="badge rose">Experimental</span>`;
+      if (/gesha|게샤|게이샤|pink bourbon|핑크|chiroso|치로소/i.test(`${bean.name} ${bean.variety}`)) return `<span class="badge violet">Rare</span>`;
+      if (noteFamily(bean) === "Floral" || noteFamily(bean) === "Citrus") return `<span class="badge green">${noteFamily(bean)}</span>`;
+      if (process === "Natural") return `<span class="badge amber">Sweet</span>`;
+      return `<span class="badge muted">${noteFamily(bean)}</span>`;
+    }
+
+    function renderTable(items) {
+      const ranked = [...items].sort((a, b) => scoreBean(b) - scoreBean(a)).slice(0, 24);
+      elements.visibleCount.textContent = `${items.length}개 표시`;
+      elements.candidateTable.innerHTML = ranked.map((bean, index) => `
+        <tr>
+          <td><span class="rank">${index + 1}</span></td>
+          <td>
+            <strong>${clean(bean.name) || "Untitled coffee"}</strong>
+            <small>${clean(bean.cupping_note) || clean(bean.variety) || "컵노트 확인 필요"}</small>
+          </td>
+          <td>${clean(bean.country) || "-"}<br><small>${clean(bean.region || bean.farm) || ""}</small></td>
+          <td>${canonicalProcess(bean.process)}<br><small>${clean(bean.process) || ""}</small></td>
+          <td>${badgeFor(bean)}</td>
+          <td><span class="table-note">${recommendationReason(bean)}</span></td>
+          <td>${arrivalText(bean)}</td>
+          <td>${won(bean.price)}<br><small>${clean(bean.unit) || ""}</small></td>
+          <td>${clean(bean.seller) || "-"}</td>
+          <td><a class="table-link" href="${linkFor(bean)}" target="_blank" rel="noopener">구매</a></td>
+        </tr>
+      `).join("") || `<tr><td colspan="10"><div class="loading">조건에 맞는 후보가 없습니다.</div></td></tr>`;
+    }
+
+    function renderDashboard() {
+      const items = filteredBeans();
+      const originRows = countBy(items, (bean) => bean.country);
+      const processRows = countBy(items, (bean) => canonicalProcess(bean.process));
+      const noteRows = countBy(items, noteFamily);
+      const experimental = items.filter(isExperimental).length;
+      const buyable = items.filter(isBuyable).length;
+      const avgScore = items.length ? Math.round(items.reduce((sum, bean) => sum + scoreBean(bean), 0) / items.length) : 0;
+      const topOrigin = originRows[0]?.[0] || "-";
+      const topProcess = processRows[0]?.[0] || "-";
+      const topNote = noteRows[0]?.[0] || "-";
+      const roasterTrend = roasterTrendSummary();
+
+      elements.monthLabel.textContent = `${monthText} 플랜`;
+      elements.totalCount.textContent = state.beans.length;
+      elements.topOrigin.textContent = topOrigin.length > 7 ? topOrigin.slice(0, 7) : topOrigin;
+      elements.experimentalRate.textContent = `${items.length ? Math.round((experimental / items.length) * 100) : 0}%`;
+      elements.buyableCount.textContent = buyable;
+      elements.seasonScore.textContent = avgScore;
+
+      elements.headlineRecommendation.textContent = `${monthText} SOWN 추천: ${topOrigin} ${topProcess} 중심, ${topNote} 컵노트 보강`;
+      elements.headlineReason.textContent = `현재 필터 기준 ${items.length}개 후보에서 가장 강한 신호를 뽑았습니다. 글로벌 로스터 관찰 리스트와 비교할 실제 크롤러를 붙이면 이 영역이 월간 리포트 엔진이 됩니다.`;
+      elements.strategyGlobal.textContent = `${roasterTrend.core} + 희소 품종 ${roasterTrend.rareCount}회`;
+      elements.strategyFilter.textContent = `${topOrigin} / ${topProcess} / ${topNote}`;
+      elements.strategyAction.textContent = `${buyable}개 구매 가능, 상위 5개 샘플 우선`;
+
+      renderBars(elements.originBars, originRows);
+      renderBars(elements.processBars, processRows);
+      renderSignals(items, originRows, processRows, noteRows);
+      renderLineup(items);
+      renderRoasterReading();
+      renderReport(items, originRows, processRows, noteRows);
+      renderTable(items);
+    }
+
+    async function loadPage(page) {
+      if (state.loading || state.reachedEnd) return;
+      state.loading = true;
+      elements.statusText.textContent = `페이지 ${page} 수집 중`;
+      elements.loadMoreButton.disabled = true;
+      try {
+        const response = await fetch(`${API_URL}?page=${page}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        const next = Array.isArray(payload.data) ? payload.data : [];
+        if (!next.length) state.reachedEnd = true;
+        const seen = new Set(state.beans.map((bean) => `${bean.seller}-${bean.seq}-${bean.name}`));
+        next.forEach((bean) => {
+          const key = `${bean.seller}-${bean.seq}-${bean.name}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            state.beans.push(bean);
+          }
+        });
+        state.page = page;
+        updateFilters();
+        renderDashboard();
+        elements.statusText.textContent = `${state.beans.length}개 원두 수집 완료`;
+      } catch (error) {
+        elements.statusText.textContent = "API 연결 실패";
+        elements.candidateTable.innerHTML = `<tr><td colspan="10"><div class="loading">Cloudflare Pages Functions에서 /api/beans 응답을 확인해주세요.</div></td></tr>`;
+      } finally {
+        state.loading = false;
+        elements.loadMoreButton.disabled = false;
+        elements.loadMoreButton.textContent = state.reachedEnd ? "마지막 생두 데이터" : "생두 데이터 더 불러오기";
+      }
+    }
+
+    function reportMarkdown() {
+      const items = filteredBeans();
+      const originRows = countBy(items, (bean) => bean.country);
+      const processRows = countBy(items, (bean) => canonicalProcess(bean.process));
+      const noteRows = countBy(items, noteFamily);
+      const ranked = [...items].sort((a, b) => scoreBean(b) - scoreBean(a)).slice(0, 8);
+      const roasterTrend = roasterTrendSummary();
+      return [
+        `# SOWN Coffee Intelligence - ${monthText}`,
+        `- 로스터리 라인업 기준일: ${reportUpdatedAt}`,
+        `- 생두 데이터 수집 페이지: ${state.page || 0}`,
+        "",
+        `## Global Roaster Reading`,
+        `- 관찰 로스터리들은 ${roasterTrend.core} 중심의 기준축을 두고, 희소 품종/고가 로트를 브랜드 신호로 같이 배치하는 흐름입니다.`,
+        `- 이유 추정: ${roasterTrend.reason}`,
+        "",
+        `## Roaster Lineup Notes`,
+        ...globalRoasterLineups.map((item) => {
+          const coffeeSummary = (item.coffees || []).map((coffee) => `${coffee.name}(${coffee.origin}, ${coffee.variety}, ${coffee.process})`).join("; ");
+          return `- ${item.roaster}: ${item.thesis} 주요 커피: ${coffeeSummary || "라인업 상세 수집 필요"}. 이유 추정: ${item.intent} SOWN 힌트: ${item.sown}`;
+        }),
+        "",
+        `## Summary`,
+        `- 후보 원두: ${items.length}개`,
+        `- 주요 산지: ${originRows[0]?.[0] || "-"}`,
+        `- 주요 프로세스: ${processRows[0]?.[0] || "-"}`,
+        `- 주요 컵노트: ${noteRows[0]?.[0] || "-"}`,
+        "",
+        `## Recommended Lineup`,
+        `- Core Filter: ${ranked[0]?.name || "샘플 필요"}`,
+        `- Seasonal Sweet: ${ranked.find((bean) => ["Tropical", "Berry"].includes(noteFamily(bean)))?.name || ranked[1]?.name || "샘플 필요"}`,
+        `- Experimental: ${ranked.find(isExperimental)?.name || "샘플 필요"}`,
+        `- Milk / Espresso: ${ranked.find((bean) => /brazil|브라질|colombia|콜롬비아/i.test(bean.country || ""))?.name || ranked[2]?.name || "샘플 필요"}`,
+        `- Rare Drop: ${ranked.find((bean) => /gesha|게샤|게이샤|pink bourbon|핑크|chiroso|치로소/i.test(`${bean.name} ${bean.variety}`))?.name || "샘플 필요"}`,
+        "",
+        `## Top Candidates`,
+        ...ranked.map((bean, index) => `${index + 1}. ${bean.name} / ${bean.country || "-"} / ${canonicalProcess(bean.process)} / ${won(bean.price)} / ${linkFor(bean)}`)
+      ].join("\n");
+    }
+
+    async function copyText(text, doneLabel, button) {
+      const original = button.textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        button.textContent = doneLabel;
+      } catch {
+        button.textContent = "복사 실패";
+      }
+      setTimeout(() => {
+        button.textContent = original;
+      }, 1400);
+    }
+
+    elements.searchInput.addEventListener("input", (event) => {
+      state.filters.search = event.target.value;
+      renderDashboard();
+    });
+    elements.originFilter.addEventListener("change", (event) => {
+      state.filters.origin = event.target.value;
+      renderDashboard();
+    });
+    elements.processFilter.addEventListener("change", (event) => {
+      state.filters.process = event.target.value;
+      renderDashboard();
+    });
+    elements.sellerFilter.addEventListener("change", (event) => {
+      state.filters.seller = event.target.value;
+      renderDashboard();
+    });
+    elements.maxPriceInput.addEventListener("input", (event) => {
+      state.filters.maxPrice = event.target.value;
+      renderDashboard();
+    });
+    elements.clearButton.addEventListener("click", () => {
+      state.filters = { search: "", origin: "", process: "", seller: "", maxPrice: "" };
+      elements.searchInput.value = "";
+      elements.maxPriceInput.value = "";
+      updateFilters();
+      renderDashboard();
+    });
+    document.querySelectorAll(".tab-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        const target = button.dataset.view;
+        document.querySelectorAll(".tab-button").forEach((item) => item.classList.toggle("is-active", item === button));
+        document.querySelectorAll(".page-view").forEach((view) => view.classList.toggle("is-active", view.id === target));
+        renderDashboard();
+      });
+    });
+    elements.loadMoreButton.addEventListener("click", () => loadPage(state.page + 1));
+    elements.refreshButton.addEventListener("click", () => {
+      state.beans = [];
+      state.page = 0;
+      state.reachedEnd = false;
+      updateFilters();
+      loadPage(1);
+    });
+    elements.exportButton.addEventListener("click", () => copyText(reportMarkdown(), "보고서 복사됨", elements.exportButton));
+    elements.copyCandidatesButton.addEventListener("click", () => copyText(reportMarkdown(), "후보 복사됨", elements.copyCandidatesButton));
+
+    updateFilters();
+    renderDashboard();
+    loadPage(1);
+  </script>
+</body>
+</html>
